@@ -1,0 +1,32 @@
+[project]
+name = "lucid-engine"
+description = "Personal engine built on Pygame and ECS"
+version = "0.0.1"
+readme = "README.md"
+authors = [
+    {name="Kadir Aksoy"}
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Topic :: Games/Entertainment",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries :: pygame",
+]
+dependencies = [
+    "pygame-ce",
+    "moderngl",
+    "miniprofiler"
+]
+requires-python = ">=3.12"
+
+[project.scripts]
+lucid_example = "example.__main__:main"
+lucid_init = "lucid.init:init"
+
+[project.urls]
+homepage = "https://github.com/kadir014/lucid-engine"
+bugtracker = "https://github.com/kadir014/lucid-engine/issues"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
