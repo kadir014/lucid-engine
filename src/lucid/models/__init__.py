@@ -9,8 +9,10 @@
 """
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum, auto
+from pathlib import Path
 
+import moderngl
 from pygame import Vector2
 
 
@@ -18,8 +20,8 @@ class VSyncMode(Enum):
     """
     Vertical synchronization modes.
 
-    Fields
-    ------
+    Attributes
+    ----------
     NONE
         No vertical sync.
     CONSTANT
@@ -37,6 +39,15 @@ class VSyncMode(Enum):
 class AppConfig:
     """
     Initial application configuration record.
+
+    Attributes
+    ----------
+    window_size
+        Dimensions of the window in pixels.
+    target_fps
+        FPS target used by the internal clock.
+    vsync
+        Vertical sync mode.
     """
 
     window_size: tuple[int, int]
@@ -44,12 +55,58 @@ class AppConfig:
     vsync: VSyncMode = VSyncMode.CONSTANT
 
 
-@dataclass
+class Comps(StrEnum):
+    """ Built-in components expected by the engine. """
+
+    TRANSFORM = auto()
+    SPRITE = auto()
+
+
+@dataclass(slots=True)
 class Transform:
     """
     Represents a position, rotation, and scale in 2D space.
+
+    Attributes
+    ----------
+    position
+        2D position in space.
+    rotation
+        Rotation in degrees.
+    scale
+        Scale factor. 
     """
 
     position: Vector2 = field(default_factory=Vector2)
     rotation: float = 0.0
     scale: float = 1.0
+
+
+@dataclass(slots=True)
+class TextureAsset:
+    texture: moderngl.Texture
+    name: str
+    filepath: Path
+
+
+@dataclass(slots=True)
+class Sprite:
+    """
+    Represents a renderable 2D image.
+
+    Attributes
+    ----------
+    texture
+        Image of the sprite.
+    visible
+        Whether this sprite is visible or not.
+    tint
+        Color tint of the image in range [0, 1].
+    alpha
+        Opacity of the imaeg in range [0, 1].
+    """
+
+    texture: TextureAsset
+    visible: bool = True
+    tint: float = 0.0
+    alpha: float = 1.0

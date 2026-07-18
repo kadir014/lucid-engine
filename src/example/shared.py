@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from lucid.core import App
-    #from lucid.asset import AssetManager
+    from lucid.asset import AssetManager
     from lucid.input import InputManager
 
 from lucid.models import AppConfig, VSyncMode
@@ -26,5 +26,5 @@ INITIAL_CONFIG = AppConfig(
 
 # These services will be automatically assigned by the application instance!
 app: "App | None" = None
-#assets: "AssetManager | None" = None
+assets: "AssetManager | None" = None
 input: "InputManager | None" = None

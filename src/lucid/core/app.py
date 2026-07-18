@@ -8,17 +8,21 @@
 
 """
 
+from os import environ
 import asyncio
 from time import time
 
 import pygame
 import miniprofiler
+import tinyecs as ecs
 
 from lucid.core.typing import SharedModule, PathLike
 from lucid.core.path import resolve
 from lucid.core.scene import Scene
-from lucid.models import VSyncMode
+from lucid.models import VSyncMode, Comps, Transform, Sprite
+from lucid.asset import AssetManager
 from lucid.input import InputManager
+from lucid.rendering import Renderer
 
 
 class App:
@@ -45,6 +49,10 @@ class App:
 
         config = sharedmod.INITIAL_CONFIG
 
+        # Fix desktop scaling on wayland, thanks to DD
+        if environ.get("XDG_SESSION_TYPE", "") == "wayland":
+            environ["SDL_VIDEODRIVER"] = "wayland"
+
         pygame.init()
 
         self._clock = pygame.time.Clock()
@@ -70,6 +78,8 @@ class App:
 
         self.profiler = miniprofiler.Profiler(60)
 
+        self.renderer = Renderer()
+        self._assets = sharedmod.assets = AssetManager(self.renderer.context)
         self._input = sharedmod.input = InputManager()
         sharedmod.app = self
 
@@ -285,8 +295,16 @@ class App:
     def _render(self) -> None:
         """ Render the game frame. """
 
-        self.scene.render_before()
+        ecs.run_system(self._render_system, Comps.TRANSFORM, Comps.SPRITE)
 
-        self.scene.render_after()
+        self.renderer.render((self._window_width, self._window_height))
 
         pygame.display.flip()
+
+    def _render_system(self, eid: ecs.EntityID, xform: Transform, sprite: Sprite) -> None:
+        if not sprite.visible:
+            return
+        
+        self.renderer.batch_sprite(
+            xform, sprite, sprite.texture.name
+        )

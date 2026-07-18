@@ -8,7 +8,9 @@
 
 """
 
-from lucid.core import App
+import sys
+
+from lucid.core import App, log
 
 from example import shared
 from example.scenes.menu import Menu
@@ -16,7 +18,13 @@ from example.scenes.game import Game
 
 
 def main() -> None:
+    log.targets.add(
+        log.LogTarget(sys.stdout, colored=True, min_level=log.LogLevel.DEBUG)
+    )
+
     app = App(shared)
+    # People are going to run example demo from the root directory, hence this path
+    shared.assets.load("src/example/assets")
 
     app.add_scene(Menu)
     app.add_scene(Game)

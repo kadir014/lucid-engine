@@ -8,7 +8,13 @@
 
 """
 
+from random import randint
+
+import tinyecs as ecs
+from pygame import Vector2
+
 from lucid.core import Scene
+from lucid.models import Comps, Transform, Sprite
 
 from example import shared
 
@@ -16,6 +22,16 @@ from example import shared
 class Game(Scene):
     def __init__(self) -> None:
         super().__init__()
+
+        sprite = Sprite(shared.assets.texture("tetohead"))
+
+        for _ in range(10_000):
+            xform = Transform(Vector2(randint(150, 1000), randint(150, 500)))
+
+            eid = ecs.create_entity()
+            ecs.add_component(eid, Comps.TRANSFORM, xform)
+            ecs.add_component(eid, Comps.SPRITE, sprite)
+            ecs.add_component(eid, "velocity", Vector2(randint(50, 150)).rotate(randint(0, 360)))
 
     def deactivated(self, next_scene: str) -> None:
         print(f"Game scene is deactivated. Next is {next_scene}.")
@@ -32,5 +48,18 @@ class Game(Scene):
         if shared.input.key_pressed("space"):
             shared.app.scene = "Menu"
 
+        ecs.run_system(self.move_system, Comps.TRANSFORM, "velocity")
+
     def render_before(self) -> None:
         ...
+
+    def move_system(self, eid: ecs.EntityID, xform: Transform, velocity: Vector2) -> None:
+        future_pos = xform.position + velocity * shared.app.dt
+
+        if future_pos.x + 20 > shared.app.window_width or future_pos.x - 20 < 0:
+            velocity.x *= -1.0
+        
+        if future_pos.y + 20 > shared.app.window_height or future_pos.y - 20 < 0:
+            velocity.y *= -1.0
+
+        xform.position += velocity * shared.app.dt
