@@ -48,12 +48,14 @@ in vec2 in_uv;
 
 in vec2 ins_position;
 in float ins_rotation;
-in float ins_scale;
+in vec2 ins_scale;
 in vec2 ins_size;
 in float ins_alpha;
+in vec4 ins_tint;
 
 out vec2 v_uv;
 flat out float v_alpha;
+flat out vec4 v_tint;
 
 uniform vec2 u_resolution;
 
@@ -82,6 +84,7 @@ void main() {
 
     v_uv = in_uv;
     v_alpha = ins_alpha;
+    v_tint = ins_tint;
 }
 """
 
@@ -90,6 +93,7 @@ void main() {
 
 in vec2 v_uv;
 flat in float v_alpha;
+flat in vec4 v_tint;
 
 out vec4 f_color;
 
@@ -97,6 +101,8 @@ uniform sampler2D s_texture;
 
 void main() {
     vec4 color = texture(s_texture, v_uv);
+
+    color = mix(color, vec4(v_tint.rgb, color.a), v_tint.a);
 
     f_color = vec4(color.rgb, color.a * v_alpha);
 }
@@ -113,12 +119,13 @@ void main() {
                 (self._uvbo, "2f", "in_uv"),
                 (
                     self.instance_buffer,
-                    "2f 1f 1f 2f 1f /i",
+                    "2f 1f 2f 2f 1f 4f /i",
                     "ins_position",
                     "ins_rotation",
                     "ins_scale",
                     "ins_size",
                     "ins_alpha",
+                    "ins_tint",
                 ),
             ),
             self._ibo
@@ -137,11 +144,13 @@ void main() {
 
         self.context.clear(1.0, 1.0, 1.0, 1.0)
 
+        inv255 = 1.0 / 255.0
+
         for group in self.sprite_batches:
             n_sprites = len(self.sprite_batches[group])
 
             for i, sprite_pair in enumerate(self.sprite_batches[group]):
-                fmt = "7f"
+                fmt = "12f"
                 size = struct.calcsize(fmt)
                 xform, sprite = sprite_pair
                 data = struct.pack(
@@ -149,10 +158,15 @@ void main() {
                     xform.position.x,
                     xform.position.y,
                     xform.rotation,
-                    xform.scale,
+                    xform.scale.x,
+                    xform.scale.y,
                     sprite.texture.texture.width,
                     sprite.texture.texture.height,
-                    sprite.alpha
+                    sprite.alpha,
+                    sprite.tint_color.r * inv255,
+                    sprite.tint_color.g * inv255,
+                    sprite.tint_color.b * inv255,
+                    sprite.tint_alpha
                 )
                 
                 self.instance_buffer.write(data, i * size)

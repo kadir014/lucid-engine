@@ -13,6 +13,7 @@ from enum import Enum, StrEnum, auto
 from pathlib import Path
 
 import moderngl
+import pygame
 from pygame import Vector2
 
 
@@ -77,9 +78,9 @@ class Transform:
         Scale factor. 
     """
 
-    position: Vector2 = field(default_factory=Vector2)
+    position: Vector2 = field(default_factory=lambda: Vector2(0.0, 0.0))
     rotation: float = 0.0
-    scale: float = 1.0
+    scale: Vector2 = field(default_factory=lambda: Vector2(1.0, 1.0))
 
 
 @dataclass(slots=True)
@@ -100,13 +101,16 @@ class Sprite:
         Image of the sprite.
     visible
         Whether this sprite is visible or not.
-    tint
-        Color tint of the image in range [0, 1].
     alpha
         Opacity of the imaeg in range [0, 1].
+    tint_color
+        Color tint of the image.
+    tint_alpha
+        Intensity of the color tint in range [0, 1].
     """
 
     texture: TextureAsset
     visible: bool = True
-    tint: float = 0.0
     alpha: float = 1.0
+    tint_color: pygame.Color = field(default_factory=lambda: pygame.Color(255, 0, 0))
+    tint_alpha: float = 0.0

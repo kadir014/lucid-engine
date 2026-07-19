@@ -280,8 +280,6 @@ class App:
                 self._render()
 
     def _update(self) -> None:
-        """ Update the game frame. """
-
         self._events = pygame.event.get()
 
         for event in self._events:
@@ -293,18 +291,19 @@ class App:
         self.scene.update()
 
     def _render(self) -> None:
-        """ Render the game frame. """
-
-        ecs.run_system(self._render_system, Comps.TRANSFORM, Comps.SPRITE)
+        ecs.run_bulk_system(
+            self._render_bulk_system, Comps.TRANSFORM, Comps.SPRITE
+        )
 
         self.renderer.render((self._window_width, self._window_height))
 
         pygame.display.flip()
 
-    def _render_system(self, eid: ecs.EntityID, xform: Transform, sprite: Sprite) -> None:
-        if not sprite.visible:
-            return
-        
-        self.renderer.batch_sprite(
-            xform, sprite, sprite.texture.name
-        )
+    def _render_bulk_system(self, call_list):
+        for eid, xform, sprite in call_list:
+            if not sprite.visible:
+                continue
+
+            self.renderer.batch_sprite(
+                xform, sprite, sprite.texture.name
+            )
