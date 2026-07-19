@@ -31,3 +31,6 @@ bugtracker = "https://github.com/kadir014/lucid-engine/issues"
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
