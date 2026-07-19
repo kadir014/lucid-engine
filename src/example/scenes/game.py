@@ -23,10 +23,9 @@ class Game(Scene):
     def __init__(self) -> None:
         super().__init__()
 
-        sprite = Sprite(shared.assets.texture("tetohead"))
-
-        for _ in range(10_000):
+        for _ in range(1000):
             xform = Transform(Vector2(randint(150, 1000), randint(150, 500)))
+            sprite = Sprite(shared.assets.texture("tetohead"))
 
             eid = ecs.create_entity()
             ecs.add_component(eid, Comps.TRANSFORM, xform)
@@ -48,12 +47,9 @@ class Game(Scene):
         if shared.input.key_pressed("space"):
             shared.app.scene = "Menu"
 
-        ecs.run_system(self.move_system, Comps.TRANSFORM, "velocity")
+        ecs.run_system(self.move_system, Comps.TRANSFORM, Comps.SPRITE, "velocity")
 
-    def render_before(self) -> None:
-        ...
-
-    def move_system(self, eid: ecs.EntityID, xform: Transform, velocity: Vector2) -> None:
+    def move_system(self, eid: ecs.EntityID, xform: Transform, sprite: Sprite, velocity: Vector2) -> None:
         future_pos = xform.position + velocity * shared.app.dt
 
         if future_pos.x + 20 > shared.app.window_width or future_pos.x - 20 < 0:
@@ -63,3 +59,7 @@ class Game(Scene):
             velocity.y *= -1.0
 
         xform.position += velocity * shared.app.dt
+
+        #xform.scale.y = 0.5
+        #xform.rotation += 10 * shared.app.dt
+        sprite.tint_alpha = xform.position.x / 1280.0
