@@ -8,7 +8,6 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "pygame-ce",
     "lucid-engine",
 ]
 requires-python = ">=3.12"

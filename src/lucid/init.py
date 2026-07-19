@@ -101,7 +101,7 @@ def init() -> None:
             content = f.read()
         return content.format(**project_vars)
 
-    for fname in ('README.md', 'pyproject.toml', 'MANIFEST.in'):
+    for fname in ("README.md", "pyproject.toml"):
         doc = read_and_format(TEMPLATES / fname, project_vars)
         write(BASE / fname, doc, args.overwrite)
 
